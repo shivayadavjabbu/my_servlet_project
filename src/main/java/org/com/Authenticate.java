@@ -35,23 +35,13 @@ public class Authenticate extends HttpServlet {
 		// TODO Auto-generated method stub
 		super.init(config);
 		
-		System.out.println("enter the name 0");
-		
 		context = config.getServletContext();
-		
-		System.out.println("enter the name 1");
-		
+
 		pool = (ConnectionPoolManager) context.getAttribute("ConnectionPool"); 
-		
-		System.out.println("enter the name 2");
 		
 		try {
 			
-			System.out.println("enter the name 3");
-			
 			connection = pool.getConnection();
-			
-			System.out.println(connection);
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -66,12 +56,6 @@ public class Authenticate extends HttpServlet {
 		super.destroy();
 		
 		pool.returnConnection(connection); //this will return the connection once the connection is done. 
-	}
-
-	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		System.out.println("print get");
-		doPost(request, response);
 	}
 
 	@Override
