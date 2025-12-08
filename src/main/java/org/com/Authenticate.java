@@ -17,6 +17,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.com.ConnectDatabase.ConnectionPoolManager;
+import org.com.DaoAuthenticate.AuthenticateException;
+import org.com.DaoAuthenticate.AuthenticateInterface;
+import org.com.DaoAuthenticate.AuthenticationImpl;
 
 @WebServlet("/Authenticate")
 public class Authenticate extends HttpServlet {
@@ -61,71 +64,52 @@ public class Authenticate extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		System.out.println("Do Post fired");
+		PrintWriter out = response.getWriter(); 
 		
-			try(PreparedStatement psAuth = connection.prepareStatement("select * from usertable where username=? and password=?"))
-			{ 
-				PrintWriter out = response.getWriter(); 
-				
-				String userName = request.getParameter("userName"); 
-				
-				System.out.println(userName);
-				
-				String password = request.getParameter("password"); 
-				
-				System.out.println(password);
-				
-				psAuth.setString(1, userName);
-				
-				psAuth.setString(2, password);
-				
-				ResultSet resultAuth = psAuth.executeQuery(); 
-				
-				
+		String userName = request.getParameter("userName"); 
+		
+		System.out.println(userName);
+		
+		String password = request.getParameter("password"); 
+		
+		System.out.println(password);
+			
+		AuthenticationImpl userAuth = new AuthenticationImpl(connection); 
+			
 
-				if(resultAuth.next()) {
-					HttpSession session = request.getSession(true);
+		try {
+			if(userAuth.authenticateUser(userName, password)) {
+				
+				HttpSession session = request.getSession(true);
+				
+				session.setAttribute("username", userName);
+				
+				String role = userAuth.getRole(userName);
+				
+				if(role.equals("admin")) {
 					
-					session.setAttribute("username", userName);
+					System.out.println("Redirected to the admin");
 					
-					String role = getRole(connection, userName);
-					if(role.equals("admin")) {
-						System.out.println("Redirected to the admin");
-						response.sendRedirect("Admin?userName=" + userName); 
-					}else {
-						System.out.println("redirected to the Category page");
-						response.sendRedirect("Category?userName=" + userName); 
-					}
+					response.sendRedirect("Admin?userName=" + userName); 
+					
 				}else {
-					out.println("Authentication failed");
+					
+					System.out.println("redirected to the Category page");
+					
+					response.sendRedirect("Category?userName=" + userName); 
 				}
 				
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			}else {
+				out.println("Authentication failed");
 			}
-	}
-		
-	
-	private String getRole(Connection connection, String userName) {
-		String query = "select role from userTable where username = ?"; 
-		
-		try(PreparedStatement psGetRole = connection.prepareStatement(query)){
-			psGetRole.setString(1, userName);
-			
-			
-			ResultSet reGetRole = psGetRole.executeQuery(); 
-			
-			if(reGetRole.next()) {
-				String role = reGetRole.getString("role");
-				return role; 
-			}
-			
-		} catch (SQLException e) {
+		} catch (AuthenticateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null; 
+	
 	}
-
+	
 }
