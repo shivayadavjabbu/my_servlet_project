@@ -15,8 +15,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.com.ConnectDatabase.ConnectionPoolManager;
+import org.com.DaoCategory.CategoryException;
+import org.com.DaoCategory.CategoryImpl;
+import org.com.DaoCategory.CategoryModel;
 
 /**
  * Servlet implementation class Category
@@ -31,8 +35,6 @@ public class Category extends HttpServlet {
 //	    }
 	
 	Connection connection = null; 
-	
-	PreparedStatement psAuth = null; 
 	
 	ServletContext context = null; 
 	
@@ -84,36 +86,39 @@ public class Category extends HttpServlet {
 		 
 	     String userName = request.getParameter("userName");
 
-	     String sql = "SELECT categoryId, categoryName, categoryDescription, imageLink FROM category";
-	    
+	     CategoryImpl categoryDAO = new CategoryImpl(connection);
 	     
-		try(PreparedStatement ps = connection.prepareStatement(sql); 
-			ResultSet rs = ps.executeQuery()
-			){
-			out.println("<html> <body>"); 
-			out.println("welcome <b>" + (userName == null ? "Guest": userName) + "<b></br>");
-			out.println("<table border = '1'>"); 
-			out.println("<tr><td>Name</td><td>Description</td><td>Images</td>"); 
-			
-			
-			while(rs.next()) {
-				int categoryId = rs.getInt("categoryid"); 
-				out.println("<tr>");
-				out.println("<td><a href='Products?userName=" + userName + "&catId=" + categoryId + "'>"
-                        + rs.getString("categoryName") + "</a></td>");
-                out.println("<td>" + rs.getString("categoryDescription") + "</td>");
-                out.println("<td><img src='Images/"+rs.getString("imageLink")  + "' height='60' width='60'/></td>");
-                out.println("</tr>");
-			}
-			
-			 out.println("</table>");
-	         out.println("</body></html>");
-			
-			
-		} catch (SQLException e) {
+	     List<CategoryModel> categories = null;
+		try {
+			categories = categoryDAO.getAllCategories();
+		} catch (CategoryException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+	     out.println("<html>");
+	     out.println("<body>");
+	     out.println("Welcome <b>" + (userName == null ? "Guest" : userName) + "</b><br><br>");
+
+	     out.println("<table border='1'>");
+	     out.println("<tr><th>Name</th><th>Description</th><th>Images</th></tr>");
+
+	     // Iterate over the list of categories
+	     for (CategoryModel category : categories) {
+	         int categoryId = category.getCategoryId();
+	         out.println("<tr>");
+	         out.println("<td><a href='Products?userName=" + userName + "&catId=" + categoryId + "'>"
+	                     + category.getCategoryName() + "</a></td>");
+	         out.println("<td>" + category.getCategoryDescription() + "</td>");
+	         out.println("<td><img src='Images/" + category.getImageLink() + "' height='60' width='60'/></td>");
+	         out.println("</tr>");
+	     }
+
+	     out.println("</table>");
+	     out.println("</body>");
+	     out.println("</html>");
+			
+			
 	}
 
 }
