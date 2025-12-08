@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Add user page</title>
+</head>
+<body>
+	<form action="AddUser" method="post">
+		UserName : <input type="text" name ="userName" required="required"> <br>
+		Password : <input type="password" name="password" required="required"> <br>
+		Confirm Password : <input type="password" name="confirmPassword" required="required"> <br>
+		Mobile : <input type="number" name="mobile" required="required"> <br>
+		name : <input type="text" name="name" required="required"> <br>
+		email : <input type="email" name="email" required="required"> <br>
+		<select id="myDropdown" name="role">
+		  <option value="user">User</option>
+		  <option value="admin" selected>Admin</option>
+		</select>
+		
+		<input type="submit" value="Register">
+		
+	</form>
+</body>
+</html>
