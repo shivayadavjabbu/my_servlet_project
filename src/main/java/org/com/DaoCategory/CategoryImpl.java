@@ -22,7 +22,8 @@ public class CategoryImpl implements CategoryInterface {
 	        try (PreparedStatement ps = connection.prepareStatement(query);
 	             ResultSet rs = ps.executeQuery()) {
 	            while (rs.next()) {
-	            	CategoryModel c = new CategoryModel(rs.getInt("id"), rs.getString("name"), rs.getString("description"), rs.getString("imageLink"));
+	            	CategoryModel c = new CategoryModel(rs.getInt("categoryId"), rs.getString("categoryName"), rs.getString("categoryDescription"), 
+	            			rs.getString("CategoryImageLink"));
 	                categories.add(c);
 	            }
 	        } catch (SQLException e) {
@@ -33,12 +34,13 @@ public class CategoryImpl implements CategoryInterface {
 
 	    @Override
 	    public CategoryModel getCategoryById(int id) throws CategoryException {
-	        String query = "SELECT * FROM category WHERE id=?";
+	        String query = "SELECT * FROM category WHERE categoryId=?";
 	        try (PreparedStatement ps = connection.prepareStatement(query)) {
 	            ps.setInt(1, id);
 	            try (ResultSet rs = ps.executeQuery()) {
 	                if (rs.next()) {
-	                    return new CategoryModel(rs.getInt("id"), rs.getString("name"), rs.getString("description"), rs.getString("imageLink"));
+	                    return new CategoryModel(rs.getInt("categoryId"), rs.getString("categoryName"), rs.getString("categoryDescription"), 
+	                    	rs.getString("CategoryImageLink"));
 	                }
 	            }
 	        } catch (SQLException e) {
@@ -49,7 +51,7 @@ public class CategoryImpl implements CategoryInterface {
 
 	    @Override
 	    public void addCategory(CategoryModel category) throws CategoryException {
-	        String query = "INSERT INTO category (name) VALUES (?)";
+	        String query = "INSERT INTO category (categoryName) VALUES (?)";
 	        try (PreparedStatement ps = connection.prepareStatement(query)) {
 	            ps.setString(1, category.getCategoryName());
 	            ps.executeUpdate();
@@ -60,7 +62,7 @@ public class CategoryImpl implements CategoryInterface {
 
 	    @Override
 	    public void updateCategory(CategoryModel category) throws CategoryException {
-	        String query = "UPDATE category SET name=? WHERE id=?";
+	        String query = "UPDATE category SET categoryName=? WHERE categoryId=?";
 	        try (PreparedStatement ps = connection.prepareStatement(query)) {
 	            ps.setString(1, category.getCategoryName());
 	            ps.setInt(2, category.getCategoryId());
@@ -72,7 +74,7 @@ public class CategoryImpl implements CategoryInterface {
 
 	    @Override
 	    public void deleteCategory(int id) throws CategoryException {
-	        String query = "DELETE FROM category WHERE id=?";
+	        String query = "DELETE FROM category WHERE categoryId=?";
 	        try (PreparedStatement ps = connection.prepareStatement(query)) {
 	            ps.setInt(1, id);
 	            ps.executeUpdate();
