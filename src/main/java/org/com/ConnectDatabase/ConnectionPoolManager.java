@@ -29,8 +29,11 @@ public class ConnectionPoolManager {
         this.driverClass = driverClass;
         
         try {
+        	
             Class.forName(driverClass);
+            
         } catch (ClassNotFoundException e) {
+        	
             throw new RuntimeException("Failed to load JDBC driver: " + driverClass, e);
         }
         
@@ -69,21 +72,30 @@ public class ConnectionPoolManager {
     public void returnConnection(Connection conn) {
     	
     	if(conn != null) {
+    		
     		connectionPool.offer(conn); 
     	}
     }
     
     public void shutDown() {
-    	for(Connection conn: connectionPool) {
-    		
-    		try {
-    			conn.close();
-    		} catch(SQLException e) {
-    			System.out.println("Error closing connection: "+e.getMessage());
-    		}
-    	}
-    	
-    	System.out.println("Custom Connection Pool of Database shutdown");
+        System.out.println("Shutting down custom connection pool...");
+
+        Connection conn;
+        
+        while ((conn = connectionPool.poll()) != null) {
+        	
+            try {
+            	
+                conn.close();
+                
+            } catch (SQLException e) {
+            	
+                System.out.println("Error closing connection: " + e.getMessage());
+                
+            }
+        }
+
+        System.out.println("Connection pool shutdown complete.");
     }
     
 }
